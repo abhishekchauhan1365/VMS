@@ -1,0 +1,230 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  HOST
+  SECURITY
+}
+
+enum VisitType {
+  BUSINESS_GUEST
+  VENDOR
+  PERSONNEL
+  GOVT_OFFICIAL
+  INTERVIEW
+  CONTRACT_STAFF
+  DELIVERY
+  OTHER
+}
+
+enum VisitStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  EXPIRED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum NotificationType {
+  VISIT_CREATED
+  VISIT_APPROVED
+  VISIT_REJECTED
+  VISIT_CHECKED_IN
+  VISIT_CHECKED_OUT
+  VISIT_OVERSTAY
+  VISIT_EXPIRED
+  WATCHLIST_ALERT
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  users     User[]
+  createdAt DateTime @default(now())
+
+  @@map("departments")
+}
+
+model Office {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  capacity  Int
+  users     User[]
+  invites   Invite[]
+  visits    Visit[]
+  createdAt DateTime @default(now())
+
+  @@map("offices")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  role         Role
+  departmentId String?
+  officeId     String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  office       Office?     @relation(fields: [officeId], references: [id])
+
+  hostedInvites     Invite[]       @relation("InviteHost")
+  hostedVisits      Visit[]        @relation("VisitHost")
+  decidedVisits     Visit[]        @relation("VisitDecidedBy")
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@map("users")
+}
+
+model Visitor {
+  id            String   @id @default(cuid())
+  fullName      String
+  phone         String   @unique
+  email         String?
+  company       String?
+  photoUrl      String?
+  isWatchlisted Boolean  @default(false)
+
+  invites InviteGuest[]
+  visits  Visit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@map("visitors")
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  hostId      String
+  host        User      @relation("InviteHost", fields: [hostId], references: [id])
+  title       String
+  visitType   VisitType
+  officeId    String
+  office      Office    @relation(fields: [officeId], references: [id])
+  windowStart DateTime
+  windowEnd   DateTime
+  note        String?
+  guests      InviteGuest[]
+  visits      Visit[]
+
+  createdAt DateTime @default(now())
+
+  @@index([hostId])
+  @@map("invites")
+}
+
+model InviteGuest {
+  id        String  @id @default(cuid())
+  inviteId  String
+  invite    Invite  @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  visitorId String
+  visitor   Visitor @relation(fields: [visitorId], references: [id])
+
+  @@unique([inviteId, visitorId])
+  @@map("invite_guests")
+}
+
+model Visit {
+  id               String      @id @default(cuid())
+  visitorId        String
+  visitor          Visitor     @relation(fields: [visitorId], references: [id])
+  hostId           String
+  host             User        @relation("VisitHost", fields: [hostId], references: [id])
+  inviteId         String?
+  invite           Invite?     @relation(fields: [inviteId], references: [id])
+  officeId         String
+  office           Office      @relation(fields: [officeId], references: [id])
+  purpose          String?
+  visitType        VisitType
+  status           VisitStatus @default(PENDING_APPROVAL)
+  requestedAt      DateTime    @default(now())
+  decidedAt        DateTime?
+  decidedById      String?
+  decidedBy        User?       @relation("VisitDecidedBy", fields: [decidedById], references: [id])
+  checkInAt        DateTime?
+  checkOutAt       DateTime?
+  windowStart      DateTime
+  windowEnd        DateTime
+  rejectionReason  String?
+  additionalInfo   String?
+  version          Int         @default(0)
+
+  pass       VisitPass?
+  auditLogs  AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([officeId, status, checkInAt])
+  @@index([hostId, status])
+  @@index([status, windowEnd])
+  @@map("visits")
+}
+
+model VisitPass {
+  id        String    @id @default(cuid())
+  visitId   String    @unique
+  visit     Visit     @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("visit_passes")
+}
+
+model Notification {
+  id        String            @id @default(cuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  type      NotificationType
+  payload   Json
+  readAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  visitId   String?
+  visit     Visit?   @relation(fields: [visitId], references: [id])
+  before    Json?
+  after     Json?
+  at        DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([visitId])
+  @@map("audit_logs")
+}
+
+model Policy {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("policies")
+}

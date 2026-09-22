@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: true
+  '@prisma/client': true
+  prisma: true
+  bcrypt: true
+  workerd: false
+  '@prisma/engines': true
