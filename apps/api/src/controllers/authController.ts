@@ -7,7 +7,9 @@ import { env } from '../config/env.js';
 const REFRESH_COOKIE = 'vms_refresh_token';
 const cookieOptions = {
   httpOnly: true,
-  sameSite: 'lax' as const,
+  // The Vercel frontend and Render API are different sites in production, so the
+  // refresh cookie must be eligible for cross-site fetch requests.
+  sameSite: (env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax',
   secure: env.NODE_ENV === 'production',
   path: '/api/v1/auth',
 };
