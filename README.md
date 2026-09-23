@@ -4,8 +4,7 @@ A production-quality visitor management system: pre-approved invites with QR e-p
 registration with host approval, a live front-desk board, a kiosk QR check-in flow, and an admin
 console with analytics and an audit trail. Built end-to-end — data layer, API, background jobs,
 real-time push, frontend, tests, and load/perf verification — per the spec in
-[ARCHITECTURE.md](ARCHITECTURE.md) and the phase plan in
-[CLAUDE_CODE_PROMPT.md](CLAUDE_CODE_PROMPT.md). Sensible calls made where the spec didn't say are
+[ARCHITECTURE.md](ARCHITECTURE.md) Sensible calls made where the spec didn't say are
 logged in [docs/decisions.md](docs/decisions.md).
 
 ## Setup (3 commands)
