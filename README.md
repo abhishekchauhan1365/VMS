@@ -236,3 +236,5 @@ docs/            # performance.md, decisions.md, demo-script.md, screenshots/
 - `pnpm --filter=@vms/api run db:studio` — browse the database in Prisma Studio
 - `pnpm --filter=@vms/web run e2e` — Playwright E2E (needs the full stack running)
 - `k6 run k6/<script>.js` — load tests (needs `k6` installed)
+
+# vms
