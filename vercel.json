@@ -1,7 +1,7 @@
 {
   "framework": "vite",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter=@vms/shared run build && pnpm --filter=@vms/web run build",
-  "outputDirectory": "apps/web/dist",
+  "buildCommand": "pnpm --filter=@vms/shared run build && pnpm --filter=@vms/web run build && rm -rf dist && cp -R apps/web/dist dist",
+  "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
