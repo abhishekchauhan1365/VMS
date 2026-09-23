@@ -1,4 +1,4 @@
 {
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter=@vms/shared run build && pnpm --filter=@vms/web run build && mkdir -p .vercel/output/static && cp -R apps/web/dist/* .vercel/output/static/ && echo '{\"version\": 3, \"routes\": [{\"handle\": \"filesystem\"}, {\"src\": \"/(.*)\", \"dest\": \"/index.html\"}]}' > .vercel/output/config.json"
+  "buildCommand": "pnpm run vercel-build"
 }

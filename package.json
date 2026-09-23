@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "pnpm --parallel --filter=./apps/* run dev",
     "build": "pnpm --filter=./packages/* run build && pnpm --filter=./apps/* run build",
+    "vercel-build": "pnpm --filter=@vms/shared run build && pnpm --filter=@vms/web run build && mkdir -p .vercel/output/static && cp -R apps/web/dist/. .vercel/output/static/ && node -e \"require('fs').writeFileSync('.vercel/output/config.json', JSON.stringify({version:3,routes:[{handle:'filesystem'},{src:'/(.*)',dest:'/index.html'}]}))\"",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
