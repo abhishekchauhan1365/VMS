@@ -1,7 +1,9 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test, expect, type Page } from '@playwright/test';
 
-const OUT_DIR = path.join(import.meta.dirname, '..', '..', '..', 'docs', 'screenshots');
+const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
+const OUT_DIR = path.join(THIS_DIR, '..', '..', '..', 'docs', 'screenshots');
 
 async function shoot(page: Page, name: string) {
   await page.waitForTimeout(400); // let toasts/animations settle
