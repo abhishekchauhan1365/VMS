@@ -1,4 +1,5 @@
 {
+  "framework": "vite",
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter=@vms/shared run build && pnpm --filter=@vms/web run build",
   "outputDirectory": "apps/web/dist",
